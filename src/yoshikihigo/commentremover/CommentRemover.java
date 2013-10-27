@@ -58,7 +58,7 @@ public class CommentRemover {
 				final Option l = new Option("l", "language", true, "language");
 				l.setArgName("language");
 				l.setArgs(1);
-				l.setRequired(true);
+				l.setRequired(false);
 				options.addOption(l);
 			}
 
@@ -134,6 +134,8 @@ public class CommentRemover {
 			final String optionI = cmd.getOptionValue("i");
 			final String optionO = cmd.hasOption("o") ? cmd.getOptionValue("o")
 					: null;
+			final String optionL = cmd.hasOption("l") ? cmd.getOptionValue("l")
+					: null;
 			final File inputFile = new File(optionI);
 
 			// if a file path is specified ...
@@ -156,14 +158,21 @@ public class CommentRemover {
 
 			// if a directory path is specified ...
 			else if (inputFile.isDirectory()) {
+
 				if (null == optionO) {
 					System.out
-							.println("specify output file with option \"-o\" when you specify a directory as an input.");
+							.println("specify an output file with option \"-o\" when you specify a directory as an input.");
+					System.exit(0);
+				}
+
+				if (null == optionL) {
+					System.out
+							.println("specify a programming language with option \"-l\" when you specify a directory as an input");
+					System.exit(0);
 				}
 
 				int index = 0;
-				final Set<File> files = getFiles(new File(optionI),
-						cmd.getOptionValue("l"));
+				final Set<File> files = getFiles(new File(optionI), optionL);
 				for (final File file : files) {
 
 					if (cmd.hasOption("v")) {

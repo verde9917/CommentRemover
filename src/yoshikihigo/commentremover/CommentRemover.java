@@ -28,6 +28,8 @@ public class CommentRemover {
 	private static final String LINE_SEPARATOR = System
 			.getProperty("line.separator");
 
+	public static String result = null;
+
 	public static void main(String[] args) throws IOException {
 
 		try {
@@ -133,31 +135,26 @@ public class CommentRemover {
 			final String optionO = cmd.hasOption("o") ? cmd.getOptionValue("o")
 					: null;
 			final File inputFile = new File(optionI);
+
+			// if a file path is specified ...
 			if (inputFile.isFile()) {
 
-				String text = readFile(inputFile,
+				final String text = readFile(inputFile,
 						cmd.hasOption("x") ? cmd.getOptionValue("x") : null);
-				if (!cmd.hasOption("c")) {
-					text = deleteLineComment(text);
-				}
-				if (!cmd.hasOption("b")) {
-					text = deleteBlockComment(text);
-				}
-				if (!cmd.hasOption("a")) {
-					text = deleteBlankLine(text);
-				}
-				if (!cmd.hasOption("d")) {
-					text = deleteBracketLine(text);
-				}
-				if (!cmd.hasOption("e")) {
-					text = deleteIndent(text);
+
+				final String[] newArgs = new String[args.length];
+				for (int i = 0; i < args.length; i++) {
+					if (args[i].equals(optionI)) {
+						newArgs[i] = text;
+					} else {
+						newArgs[i] = args[i];
+					}
 				}
 
-				final String outputPath = null != optionO ? inputFile
-						.getAbsolutePath().replace(optionI, optionO) : null;
-				writeFile(text, outputPath);
+				main(newArgs);
 			}
 
+			// if a directory path is specified ...
 			else if (inputFile.isDirectory()) {
 				if (null == optionO) {
 					System.out
@@ -194,19 +191,35 @@ public class CommentRemover {
 						}
 					}
 
-					for (final String newArg : newArgs) {
-						System.out.print(newArg);
-						System.out.print(",");
-					}
-
 					main(newArgs);
 				}
 
 			}
 
+			// if a file content is specified ...
 			else {
-				System.out.print("specified path is in valid: ");
-				System.out.println(optionI);
+
+				String text = optionI;
+				if (!cmd.hasOption("c")) {
+					text = deleteLineComment(text);
+				}
+				if (!cmd.hasOption("b")) {
+					text = deleteBlockComment(text);
+				}
+				if (!cmd.hasOption("a")) {
+					text = deleteBlankLine(text);
+				}
+				if (!cmd.hasOption("d")) {
+					text = deleteBracketLine(text);
+				}
+				if (!cmd.hasOption("e")) {
+					text = deleteIndent(text);
+				}
+
+				final String outputPath = null != optionO ? inputFile
+						.getAbsolutePath().replace(optionI, optionO) : null;
+				writeFile(text, outputPath);
+				result = text;
 			}
 
 		} catch (IOException e) {

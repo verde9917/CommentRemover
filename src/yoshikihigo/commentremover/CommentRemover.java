@@ -225,9 +225,7 @@ public class CommentRemover {
 					text = deleteIndent(text);
 				}
 
-				final String outputPath = null != optionO ? inputFile
-						.getAbsolutePath().replace(optionI, optionO) : null;
-				writeFile(text, outputPath);
+				writeFile(text, optionO);
 				result = text;
 			}
 

@@ -28,9 +28,13 @@ public class CommentRemover {
 	private static final String LINE_SEPARATOR = System
 			.getProperty("line.separator");
 
-	public static String result = null;
+	public String result;
 
-	public static void main(String[] args) throws IOException {
+	public CommentRemover() {
+		this.result = null;
+	}
+
+	public void perform(final String[] args) {
 
 		try {
 
@@ -226,7 +230,7 @@ public class CommentRemover {
 				}
 
 				writeFile(text, optionO);
-				result = text;
+				this.result = text;
 			}
 
 		} catch (IOException e) {
@@ -236,6 +240,11 @@ public class CommentRemover {
 			System.err.println(e.getMessage());
 			System.exit(0);
 		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		final CommentRemover remover = new CommentRemover();
+		remover.perform(args);
 	}
 
 	public static Set<File> getFiles(final File file, final String language) {

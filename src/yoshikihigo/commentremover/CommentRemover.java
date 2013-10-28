@@ -121,6 +121,13 @@ public class CommentRemover {
 				options.addOption(v);
 			}
 
+			{
+				final Option q = new Option("q", "quiet", false, "quiet");
+				q.setArgName("quiet");
+				q.setRequired(false);
+				options.addOption(q);
+			}
+
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine cmd = parser.parse(options, args);
 
@@ -229,7 +236,9 @@ public class CommentRemover {
 					text = deleteIndent(text);
 				}
 
-				writeFile(text, optionO);
+				if (!cmd.hasOption("q")) {
+					writeFile(text, optionO);
+				}
 				this.result = text;
 			}
 

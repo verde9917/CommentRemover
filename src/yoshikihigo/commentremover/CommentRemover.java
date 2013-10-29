@@ -442,6 +442,10 @@ public class CommentRemover {
 					currentSTATE = STATE.CODE;
 					buf.append(" ");
 				}
+
+				else if (ch == '\n' || ((ch != '\n') && (prev == '\r'))) {
+					buf.append(LINE_SEPARATOR);
+				}
 			}
 
 			// ラインコメントの中にいるとき

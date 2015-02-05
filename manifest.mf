@@ -1,0 +1,3 @@
+Main-class: yoshikihigo/cr/CommentRemover
+Class-path: ./commons-cli-1.1.jar
+

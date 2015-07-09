@@ -276,68 +276,65 @@ public class CommentRemoverPY {
 		final Stack<STATE> states = new Stack<>();
 		states.push(STATE.CODE);
 
-		for (int i = 0; i < src.length(); i++) {
-			final char prev = 0 < i ? src.charAt(i - 1) : '0';
-			final char ch = src.charAt(i);
-			final char next = (i < src.length() - 1) ? src.charAt(i + 1) : '0';
+		for (int index = 0; index < src.length(); index++) {
+			final char c = src.charAt(index);
+			final char next = ((index + 1) < src.length()) ? src
+					.charAt(index + 1) : '0';
 
 			if (STATE.LINECOMMENT == states.peek()) {
-				if (ch == '\n' || ((ch != '\n') && (prev == '\r'))) {
+				if ('\n' == c || ((c == '\r') && ('\n' != next))) {
 					states.pop();
 					buf.append(LINE_SEPARATOR);
 				}
 			}
 
 			else if (STATE.INDOUBLEQUOTE == states.peek()) {
-				buf.append(ch);
 
-				if (ch == '\\') {
-					buf.append(src.charAt(i++));
-				}
+				buf.append(c);
 
-				else if (ch == '\"') {
+				if ('\"' == c) {
 					states.pop();
 				}
 
-				else if (ch == '\'') {
-					states.push(STATE.INSINGLEQUOTE);
+				else if (('\\' == c) && ('\"' == next)) {
+					buf.append(next);
+					index++;
 				}
+
 			}
 
 			else if (STATE.INSINGLEQUOTE == states.peek()) {
-				buf.append(ch);
 
-				if (ch == '\\') {
-					buf.append(src.charAt(i++));
-				}
+				buf.append(c);
 
-				else if (ch == '\"') {
-					states.push(STATE.INDOUBLEQUOTE);
-				}
-
-				else if (ch == '\'') {
+				if ('\'' == c) {
 					states.pop();
+				}
+
+				else if (('\\' == c) && ('\'' == next)) {
+					buf.append(next);
+					index++;
 				}
 			}
 
 			else if (STATE.CODE == states.peek()) {
 
-				if (ch == '#') {
+				if ('#' == c) {
 					states.push(STATE.LINECOMMENT);
 				}
 
-				else if (ch == '\"') {
+				else if ('\"' == c) {
 					states.push(STATE.INDOUBLEQUOTE);
-					buf.append(ch);
+					buf.append(c);
 				}
 
-				else if (ch == '\'') {
+				else if ('\'' == c) {
 					states.push(STATE.INSINGLEQUOTE);
-					buf.append(ch);
+					buf.append(c);
 				}
 
 				else {
-					buf.append(ch);
+					buf.append(c);
 				}
 			}
 		}
@@ -404,7 +401,7 @@ public class CommentRemoverPY {
 					index += 2;
 				}
 
-				else{
+				else {
 					buf.append(c1);
 				}
 			}

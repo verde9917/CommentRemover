@@ -9,13 +9,7 @@ import org.apache.commons.cli.PosixParser;
 
 public class Config {
 
-	static private Config SINGLETON = null;
-
-	static public boolean initialize(final String[] args) {
-
-		if (null != SINGLETON) {
-			return false;
-		}
+	static public Config initialize(final String[] args) {
 
 		final Options options = new Options();
 
@@ -110,28 +104,19 @@ public class Config {
 		try {
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine commandLine = parser.parse(options, args);
-			SINGLETON = new Config(commandLine);
+			final Config config = new Config(commandLine);
+			return config;
 		} catch (final ParseException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 
-		return true;
-	}
-
-	static public Config getInstance() {
-
-		if (null == SINGLETON) {
-			System.err.println("Config is not initialized.");
-			System.exit(0);
-		}
-
-		return SINGLETON;
+		return null;
 	}
 
 	private final CommandLine commandLine;
 
-	private Config(final CommandLine commandLine) {
+	public Config(final CommandLine commandLine) {
 		this.commandLine = commandLine;
 	}
 
@@ -157,9 +142,9 @@ public class Config {
 	}
 
 	public LANGUAGE getLANGUAGE() {
+
 		if (!this.hasLANGUAGE()) {
-			System.err.println("option \"-lang\" is not specified.");
-			System.exit(0);
+			return LANGUAGE.ALL;
 		}
 
 		final String language = this.commandLine.getOptionValue("lang");
@@ -174,12 +159,13 @@ public class Config {
 			return LANGUAGE.JAVA;
 		} else if (language.equalsIgnoreCase("PYTHON")) {
 			return LANGUAGE.PYTHON;
-		}else{
-			System.err.println("unknown value for option \"-lang\" is specified.");
+		} else {
+			System.err
+					.println("unknown value for option \"-lang\" is specified.");
 			System.exit(0);
 		}
 
-		return LANGUAGE.UNKNOWN;
+		return null;
 	}
 
 	public boolean hasENCODING() {

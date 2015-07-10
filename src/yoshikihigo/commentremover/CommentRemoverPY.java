@@ -8,7 +8,7 @@ public class CommentRemoverPY extends CommentRemover {
 		CODE, BLOCKCOMMENT, LINECOMMENT, INDOUBLEQUOTE, INSINGLEQUOTE;
 	}
 
-	public CommentRemoverPY(final Config config) {
+	public CommentRemoverPY(final CRConfig config) {
 		super(config);
 	}
 

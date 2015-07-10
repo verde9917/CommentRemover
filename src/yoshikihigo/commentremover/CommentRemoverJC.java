@@ -8,7 +8,7 @@ public class CommentRemoverJC extends CommentRemover {
 		CODE, BLOCKCOMMENT, LINECOMMENT, STRING, CHAR;
 	}
 
-	public CommentRemoverJC(final Config config) {
+	public CommentRemoverJC(final CRConfig config) {
 		super(config);
 	}
 

@@ -7,9 +7,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class Config {
+public class CRConfig {
 
-	static public Config initialize(final String[] args) {
+	static public CRConfig initialize(final String[] args) {
 
 		final Options options = new Options();
 
@@ -104,7 +104,7 @@ public class Config {
 		try {
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine commandLine = parser.parse(options, args);
-			final Config config = new Config(commandLine);
+			final CRConfig config = new CRConfig(commandLine);
 			return config;
 		} catch (final ParseException e) {
 			e.printStackTrace();
@@ -116,7 +116,7 @@ public class Config {
 
 	private final CommandLine commandLine;
 
-	public Config(final CommandLine commandLine) {
+	public CRConfig(final CommandLine commandLine) {
 		this.commandLine = commandLine;
 	}
 

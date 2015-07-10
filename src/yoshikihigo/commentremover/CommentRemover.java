@@ -10,7 +10,7 @@ abstract public class CommentRemover {
 
 	public static void main(final String[] args) {
 
-		Config config = Config.initialize(args);
+		CRConfig config = CRConfig.initialize(args);
 
 		if (!config.hasINPUT()) {
 			System.err
@@ -87,10 +87,10 @@ abstract public class CommentRemover {
 		}
 	}
 
-	final protected Config config;
+	final protected CRConfig config;
 	final protected String lineSeparator;
 
-	CommentRemover(final Config config) {
+	CommentRemover(final CRConfig config) {
 		this.config = config;
 		this.lineSeparator = System.lineSeparator();
 	}

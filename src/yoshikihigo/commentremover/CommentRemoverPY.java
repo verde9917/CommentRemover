@@ -19,7 +19,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class CommentRemoverPY {
+public class CommentRemoverPY extends CommentRemover {
 
 	enum STATE {
 		CODE, BLOCKCOMMENT, LINECOMMENT, INDOUBLEQUOTE, INSINGLEQUOTE;

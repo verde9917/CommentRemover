@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.sun.istack.internal.NotNull;
+
 public class FileUtility {
 
 	public static String readFile(final File file, final String encoding) {
@@ -48,6 +50,7 @@ public class FileUtility {
 		}
 	}
 
+	@NotNull
 	public static SortedSet<File> getFiles(final File file,
 			final LANGUAGE language) {
 

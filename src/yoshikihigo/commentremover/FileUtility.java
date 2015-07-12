@@ -58,13 +58,14 @@ public class FileUtility {
 
 		if (file.isDirectory()) {
 			final File[] children = file.listFiles();
-			for (final File child : children) {
-				files.addAll(getFiles(child, language));
+			if (null != children) {
+				for (final File child : children) {
+					files.addAll(getFiles(child, language));
+				}
 			}
 		}
 
 		else if (file.isFile()) {
-
 			if (language.isTargetFile(file.getName())) {
 				files.add(file);
 			}

@@ -90,7 +90,7 @@ abstract public class CommentRemover {
 	final protected CRConfig config;
 	final protected String lineSeparator;
 
-	CommentRemover(final CRConfig config) {
+	protected CommentRemover(final CRConfig config) {
 		this.config = config;
 		this.lineSeparator = System.lineSeparator();
 	}

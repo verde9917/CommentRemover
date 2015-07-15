@@ -5,7 +5,7 @@ import java.util.Stack;
 public class CommentRemoverPY extends CommentRemover {
 
 	enum STATE {
-		CODE, BLOCKCOMMENT, LINECOMMENT, INDOUBLEQUOTE, INSINGLEQUOTE;
+		CODE, DOUBLEQUOTEBLOCKCOMMENT, SINGLEQUOTEBLOCKCOMMENT, LINECOMMENT, DOUBLEQUOTELITERAL, SINGLEQUOTELITERAL;
 	}
 
 	public CommentRemoverPY(final CRConfig config) {
@@ -35,67 +35,111 @@ public class CommentRemoverPY extends CommentRemover {
 		final Stack<STATE> states = new Stack<>();
 		states.push(STATE.CODE);
 
-		for (int index = 0; index < src.length(); index++) {
-			final char c = src.charAt(index);
-			final char next = ((index + 1) < src.length()) ? src
-					.charAt(index + 1) : '0';
+		int index = 0;
+		for (; (index + 2) < src.length(); index++) {
+			final char c1 = src.charAt(index);
+			final char c2 = src.charAt(index + 1);
+			final char c3 = src.charAt(index + 2);
 
-			if (STATE.LINECOMMENT == states.peek()) {
-				if ('\n' == c || ((c == '\r') && ('\n' != next))) {
+			if (STATE.DOUBLEQUOTEBLOCKCOMMENT == states.peek()) {
+
+				buf.append(c1);
+
+				if ('\"' == c1 && '\"' == c2 && '\"' == c3) {
+					states.pop();
+					buf.append(c2);
+					buf.append(c3);
+					index += 2;
+				}
+
+			} else if (STATE.SINGLEQUOTEBLOCKCOMMENT == states.peek()) {
+
+				buf.append(c1);
+
+				if ('\'' == c1 && '\'' == c2 && '\'' == c3) {
+					states.pop();
+					buf.append(c2);
+					buf.append(c3);
+					index += 2;
+				}
+
+			} else if (STATE.LINECOMMENT == states.peek()) {
+				if ('\n' == c1 || ((c1 == '\r') && ('\n' != c2))) {
 					states.pop();
 					buf.append(this.lineSeparator);
 				}
 			}
 
-			else if (STATE.INDOUBLEQUOTE == states.peek()) {
+			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c);
+				buf.append(c1);
 
-				if ('\"' == c) {
+				if ('\"' == c1) {
 					states.pop();
 				}
 
-				else if (('\\' == c) && ('\"' == next)) {
-					buf.append(next);
+				else if (('\\' == c1) && ('\"' == c2)) {
+					buf.append(c2);
 					index++;
 				}
 
 			}
 
-			else if (STATE.INSINGLEQUOTE == states.peek()) {
+			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c);
+				buf.append(c1);
 
-				if ('\'' == c) {
+				if ('\'' == c1) {
 					states.pop();
 				}
 
-				else if (('\\' == c) && ('\'' == next)) {
-					buf.append(next);
+				else if (('\\' == c1) && ('\'' == c2)) {
+					buf.append(c2);
 					index++;
 				}
 			}
 
 			else if (STATE.CODE == states.peek()) {
 
-				if ('#' == c) {
+				if ('\"' == c1 && '\"' == c2 && '\"' == c3) {
+					states.push(STATE.DOUBLEQUOTEBLOCKCOMMENT);
+					buf.append(c1);
+					buf.append(c2);
+					buf.append(c3);
+					index += 2;
+				}
+
+				else if ('\'' == c1 && '\'' == c2 && '\'' == c3) {
+					states.push(STATE.SINGLEQUOTEBLOCKCOMMENT);
+					buf.append(c1);
+					buf.append(c2);
+					buf.append(c3);
+					index += 2;
+				}
+
+				else if ('#' == c1) {
 					states.push(STATE.LINECOMMENT);
 				}
 
-				else if ('\"' == c) {
-					states.push(STATE.INDOUBLEQUOTE);
-					buf.append(c);
+				else if ('\"' == c1) {
+					states.push(STATE.DOUBLEQUOTELITERAL);
+					buf.append(c1);
 				}
 
-				else if ('\'' == c) {
-					states.push(STATE.INSINGLEQUOTE);
-					buf.append(c);
+				else if ('\'' == c1) {
+					states.push(STATE.SINGLEQUOTELITERAL);
+					buf.append(c1);
 				}
 
 				else {
-					buf.append(c);
+					buf.append(c1);
 				}
 			}
+		}
+
+		for (; index < src.length(); index++) {
+			char c = src.charAt(index);
+			buf.append(c);
 		}
 
 		return buf.toString();
@@ -115,7 +159,7 @@ public class CommentRemoverPY extends CommentRemover {
 			final char c2 = src.charAt(index + 1);
 			final char c3 = src.charAt(index + 2);
 
-			if (STATE.INSINGLEQUOTE == states.peek()) {
+			if (STATE.SINGLEQUOTEBLOCKCOMMENT == states.peek()) {
 
 				if (('\'' == c1) && ('\'' == c2) && ('\'' == c3)) {
 					states.pop();
@@ -123,7 +167,7 @@ public class CommentRemoverPY extends CommentRemover {
 				}
 
 				else if (('\"' == c1) && ('\"' == c2) && ('\"' == c3)) {
-					states.push(STATE.INDOUBLEQUOTE);
+					states.push(STATE.DOUBLEQUOTEBLOCKCOMMENT);
 					index += 2;
 				}
 
@@ -132,10 +176,10 @@ public class CommentRemoverPY extends CommentRemover {
 				}
 			}
 
-			else if (STATE.INDOUBLEQUOTE == states.peek()) {
+			else if (STATE.DOUBLEQUOTEBLOCKCOMMENT == states.peek()) {
 
 				if (('\'' == c1) && ('\'' == c2) && ('\'' == c3)) {
-					states.push(STATE.INSINGLEQUOTE);
+					states.push(STATE.SINGLEQUOTEBLOCKCOMMENT);
 					index += 2;
 				}
 
@@ -152,12 +196,12 @@ public class CommentRemoverPY extends CommentRemover {
 			else if (STATE.CODE == states.peek()) {
 
 				if (('\'' == c1) && ('\'' == c2) && ('\'' == c3)) {
-					states.push(STATE.INSINGLEQUOTE);
+					states.push(STATE.SINGLEQUOTEBLOCKCOMMENT);
 					index += 2;
 				}
 
 				else if (('\"' == c1) && ('\"' == c2) && ('\"' == c3)) {
-					states.push(STATE.INDOUBLEQUOTE);
+					states.push(STATE.DOUBLEQUOTEBLOCKCOMMENT);
 					index += 2;
 				}
 

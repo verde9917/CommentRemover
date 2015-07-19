@@ -9,89 +9,118 @@ import org.apache.commons.cli.PosixParser;
 
 public class CRConfig {
 
+	public static enum OPERATION {
+		REMOVE("remove"), RETAIN("retain");
+
+		final private String value;
+
+		private OPERATION(final String value) {
+			this.value = value;
+		}
+
+		static public OPERATION getOPERATION(final String value) {
+			if (value.equalsIgnoreCase("remove")) {
+				return REMOVE;
+			} else if (value.equalsIgnoreCase("retain")) {
+				return RETAIN;
+			} else {
+				assert false : "illegal value: " + value;
+				return null;
+			}
+		}
+	}
+
 	static public CRConfig initialize(final String[] args) {
 
 		final Options options = new Options();
 
 		{
-			final Option i = new Option("input", "input", true,
+			final Option input = new Option("input", "input", true,
 					"input directory");
-			i.setArgName("input");
-			i.setArgs(1);
-			i.setRequired(false);
-			options.addOption(i);
+			input.setArgName("input");
+			input.setArgs(1);
+			input.setRequired(false);
+			options.addOption(input);
 		}
 
 		{
-			final Option o = new Option("output", "output", true,
+			final Option output = new Option("output", "output", true,
 					"output directory");
-			o.setArgName("output");
-			o.setArgs(1);
-			o.setRequired(false);
-			options.addOption(o);
+			output.setArgName("output");
+			output.setArgs(1);
+			output.setRequired(false);
+			options.addOption(output);
 		}
 
 		{
-			final Option l = new Option("lang", "language", true, "language");
-			l.setArgName("language");
-			l.setArgs(1);
-			l.setRequired(false);
-			options.addOption(l);
+			final Option language = new Option("lang", "language", true,
+					"language");
+			language.setArgName("language");
+			language.setArgs(1);
+			language.setRequired(false);
+			options.addOption(language);
 		}
 
 		{
-			final Option x = new Option("encoding", "encoding", true,
+			final Option encoding = new Option("encoding", "encoding", true,
 					"encoding");
-			x.setArgName("encoding");
-			x.setArgs(1);
-			x.setRequired(false);
-			options.addOption(x);
+			encoding.setArgName("encoding");
+			encoding.setArgs(1);
+			encoding.setRequired(false);
+			options.addOption(encoding);
 		}
 
 		{
-			final Option a = new Option("blankline", "blankline", false,
-					"blankline");
-			a.setArgName("blankline");
-			a.setRequired(false);
-			options.addOption(a);
+			final Option blankline = new Option("blankline", "blankline",
+					false, "blankline");
+			blankline.setArgName("blankline");
+			blankline.setArgs(1);
+			blankline.setRequired(false);
+			options.addOption(blankline);
 		}
 
 		{
-			final Option b = new Option("blockcomment", "blockcomment", false,
-					"block comment");
-			b.setArgName("blockcomment");
-			b.setRequired(false);
-			options.addOption(b);
+			final Option blockcomment = new Option("blockcomment",
+					"blockcomment", false, "block comment");
+			blockcomment.setArgName("blockcomment");
+			blockcomment.setArgs(1);
+			blockcomment.setRequired(false);
+			options.addOption(blockcomment);
 		}
 
 		{
-			final Option c = new Option("linecomment", "linecomment", false,
-					"line comment");
-			c.setArgName("linecomment");
-			c.setRequired(false);
-			options.addOption(c);
+			final Option linecomment = new Option("linecomment", "linecomment",
+					false, "line comment");
+			linecomment.setArgName("linecomment");
+			linecomment.setArgs(1);
+			linecomment.setRequired(false);
+			options.addOption(linecomment);
 		}
 
 		{
-			final Option d = new Option("bracketline", "bracketline", false,
-					"bracket line");
-			d.setArgName("bracketline");
-			d.setRequired(false);
-			options.addOption(d);
+			final Option bracketline = new Option("bracketline", "bracketline",
+					false, "bracket line");
+			bracketline.setArgName("bracketline");
+			bracketline.setArgs(1);
+			bracketline.setRequired(false);
+			options.addOption(bracketline);
 		}
 
 		{
-			final Option e = new Option("indent", "indent", false, "indent");
-			e.setArgName("indent");
-			e.setRequired(false);
-			options.addOption(e);
+			final Option indent = new Option("indent", "indent", false,
+					"indent");
+			indent.setArgName("indent");
+			indent.setArgs(1);
+			indent.setRequired(false);
+			options.addOption(indent);
 		}
 
 		{
-			final Option v = new Option("v", "verbose", false, "verbose output");
-			v.setArgName("verbose");
-			v.setRequired(false);
-			options.addOption(v);
+			final Option verbose = new Option("v", "verbose", false,
+					"verbose output");
+			verbose.setArgName("verbose");
+			verbose.setRequired(false);
+			options.addOption(verbose);
 		}
 
 		{
@@ -177,24 +206,34 @@ public class CRConfig {
 				: "";
 	}
 
-	public boolean hasBLANKLINE() {
-		return this.commandLine.hasOption("blankline");
+	public OPERATION getBLANKLINE() {
+		return this.commandLine.hasOption("blankline") ? OPERATION
+				.getOPERATION(this.commandLine.getOptionValue("blankline"))
+				: OPERATION.RETAIN;
 	}
 
-	public boolean hasBLOCKCOMMENT() {
-		return this.commandLine.hasOption("blockcomment");
+	public OPERATION getBLOCKCOMMENT() {
+		return this.commandLine.hasOption("blockcomment") ? OPERATION
+				.getOPERATION(this.commandLine.getOptionValue("blockcomment"))
+				: OPERATION.REMOVE;
 	}
 
-	public boolean hasLINECOMMENT() {
-		return this.commandLine.hasOption("linecomment");
+	public OPERATION getLINECOMMENT() {
+		return this.commandLine.hasOption("linecomment") ? OPERATION
+				.getOPERATION(this.commandLine.getOptionValue("linecomment"))
+				: OPERATION.REMOVE;
 	}
 
-	public boolean hasBLACKETLINE() {
-		return this.commandLine.hasOption("bracketline");
+	public OPERATION getBRACKETLINE() {
+		return this.commandLine.hasOption("bracketline") ? OPERATION
+				.getOPERATION(this.commandLine.getOptionValue("bracketline"))
+				: OPERATION.RETAIN;
 	}
 
-	public boolean hasINDENT() {
-		return this.commandLine.hasOption("indent");
+	public OPERATION getINDENT() {
+		return this.commandLine.hasOption("indent") ? OPERATION
+				.getOPERATION(this.commandLine.getOptionValue("indent"))
+				: OPERATION.RETAIN;
 	}
 
 	public boolean isVERBOSE() {

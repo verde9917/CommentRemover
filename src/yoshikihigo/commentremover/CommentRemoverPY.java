@@ -15,13 +15,13 @@ public class CommentRemoverPY extends CommentRemover {
 	public String perform(final String src) {
 
 		String dest = src;
-		if (!this.config.hasLINECOMMENT()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getLINECOMMENT()) {
 			dest = deleteLineComment(dest);
 		}
-		if (!this.config.hasBLOCKCOMMENT()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getBLOCKCOMMENT()) {
 			dest = deleteBlockComment(dest);
 		}
-		if (!this.config.hasBLANKLINE()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getBLANKLINE()) {
 			dest = deleteBlankLine(dest);
 		}
 		return dest;

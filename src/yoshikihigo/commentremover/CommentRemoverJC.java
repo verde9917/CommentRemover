@@ -20,19 +20,19 @@ public class CommentRemoverJC extends CommentRemover {
 	public String perform(final String src) {
 
 		String dest = src;
-		if (!this.config.hasLINECOMMENT()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getLINECOMMENT()) {
 			dest = deleteLineComment(dest);
 		}
-		if (!this.config.hasBLOCKCOMMENT()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getBLOCKCOMMENT()) {
 			dest = deleteBlockComment(dest);
 		}
-		if (!this.config.hasBLANKLINE()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getBLANKLINE()) {
 			dest = deleteBlankLine(dest);
 		}
-		if (!this.config.hasBLACKETLINE()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getBRACKETLINE()) {
 			dest = deleteBracketLine(dest);
 		}
-		if (!this.config.hasINDENT()) {
+		if (CRConfig.OPERATION.REMOVE == this.config.getINDENT()) {
 			dest = deleteIndent(dest);
 		}
 		return dest;
@@ -43,6 +43,7 @@ public class CommentRemoverJC extends CommentRemover {
 
 		final StringBuilder dest = new StringBuilder();
 		final Stack<STATE> states = new Stack<>();
+		states.push(STATE.CODE);
 		boolean escape = false;
 
 		for (int index = 0; index < src.length(); index++) {

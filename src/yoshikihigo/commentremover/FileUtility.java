@@ -37,7 +37,8 @@ public class FileUtility {
 
 		final File file = new File(path);
 		if ((null != file.getParentFile()) && !file.getParentFile().exists()) {
-			file.getParentFile().mkdirs();
+			final boolean made = file.getParentFile().mkdirs();
+			assert made : "illegal state.";
 		}
 
 		try (final OutputStream out = new FileOutputStream(path)) {

@@ -399,7 +399,7 @@ public class CommentRemoverJC extends CommentRemover {
 			final char c2 = (index + 1) < src.length() ? src.charAt(index + 1)
 					: '0';
 
-			if (' ' == c1 || ' ' == c1) {
+			if (' ' == c1 || '\t' == c1) {
 				if (!indent) {
 					dest.append(c1);
 				}

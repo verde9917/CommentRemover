@@ -1,9 +1,6 @@
 package yoshikihigo.commentremover;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.SortedSet;
 
 abstract public class CommentRemover {
@@ -88,41 +85,49 @@ abstract public class CommentRemover {
 	}
 
 	final protected CRConfig config;
-	final protected String lineSeparator;
 
 	protected CommentRemover(final CRConfig config) {
 		this.config = config;
-		this.lineSeparator = System.lineSeparator();
 	}
 
 	abstract public String deleteLineComment(final String text);
 
 	abstract public String deleteBlockComment(final String text);
 
+	abstract public String perform(final String text);
+
 	final public String deleteBlankLine(final String text) {
 
-		StringBuilder result = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
+		final StringBuilder result = new StringBuilder();
+		final StringBuilder line = new StringBuilder();
+		boolean blankline = true;
 
-			while (true) {
-				final String line = reader.readLine();
-				if (null == line) {
-					break;
+		for (int index = 0; index < text.length(); index++) {
+			final char c1 = text.charAt(index);
+			final char c2 = (index + 1) < text.length() ? text
+					.charAt(index + 1) : '0';
+
+			if (' ' == c1 || '\t' == c1) {
+				line.append(c1);
+			}
+
+			else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				if (!blankline) {
+					line.append(c1);
+					result.append(line.toString());
 				}
-				if (!line.matches("^\\s*$")) {
-					result.append(line);
-					result.append(this.lineSeparator);
+				if (0 < line.length()) {
+					line.delete(0, line.length());
 				}
+				blankline = true;
+			}
+
+			else {
+				line.append(c1);
+				blankline = false;
 			}
 		}
 
-		catch (final IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		return result.toString().replaceFirst("\\s*$", "");
+		return result.toString();
 	}
-
-	abstract public String perform(final String text);
 }

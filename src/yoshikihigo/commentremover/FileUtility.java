@@ -36,7 +36,9 @@ public class FileUtility {
 	public static void writeFile(final String text, final String path) {
 
 		final File file = new File(path);
-		file.getParentFile().mkdirs();
+		if ((null != file.getParentFile()) && !file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 
 		try (final OutputStream out = new FileOutputStream(path)) {
 

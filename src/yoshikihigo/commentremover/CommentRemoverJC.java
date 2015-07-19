@@ -1,11 +1,15 @@
 package yoshikihigo.commentremover;
 
-import java.util.StringTokenizer;
+import java.util.Stack;
 
 public class CommentRemoverJC extends CommentRemover {
 
 	enum STATE {
-		CODE, BLOCKCOMMENT, LINECOMMENT, STRING, CHAR;
+		CODE, BLOCKCOMMENT, LINECOMMENT, DOUBLEQUOTELITERAL, SINGLEQUOTELITERAL;
+	}
+
+	enum BRACKET_STATE {
+		BEFORE_BRACKET, AFTER_OPEN_BRACKET, AFTER_CLOSE_BRACKET, USUAL_LINE;
 	}
 
 	public CommentRemoverJC(final CRConfig config) {
@@ -13,216 +17,404 @@ public class CommentRemoverJC extends CommentRemover {
 	}
 
 	@Override
-	public String perform(final String text) {
+	public String perform(final String src) {
 
-		String result = text;
+		String dest = src;
 		if (!this.config.hasLINECOMMENT()) {
-			result = deleteLineComment(result);
+			dest = deleteLineComment(dest);
 		}
 		if (!this.config.hasBLOCKCOMMENT()) {
-			result = deleteBlockComment(result);
+			dest = deleteBlockComment(dest);
 		}
 		if (!this.config.hasBLANKLINE()) {
-			result = deleteBlankLine(result);
+			dest = deleteBlankLine(dest);
 		}
 		if (!this.config.hasBLACKETLINE()) {
-			result = deleteBracketLine(result);
+			dest = deleteBracketLine(dest);
 		}
 		if (!this.config.hasINDENT()) {
-			result = deleteIndent(result);
+			dest = deleteIndent(dest);
 		}
-		return result;
+		return dest;
 	}
 
 	@Override
-	public String deleteLineComment(final String text) {
+	public String deleteLineComment(final String src) {
 
-		StringBuilder buf = new StringBuilder();
+		final StringBuilder dest = new StringBuilder();
+		final Stack<STATE> states = new Stack<>();
+		boolean escape = false;
 
-		STATE currentSTATE = STATE.CODE;
-
-		for (int i = 0; i < text.length(); i++) {
-			final char prev = 0 < i ? text.charAt(i - 1) : '0';
-			final char ch = text.charAt(i);
-			final char next = (i < text.length() - 1) ? text.charAt(i + 1)
+		for (int index = 0; index < src.length(); index++) {
+			final char c1 = src.charAt(index);
+			final char c2 = (index + 1) < src.length() ? src.charAt(index + 1)
 					: '0';
 
-			if (STATE.BLOCKCOMMENT == currentSTATE) {
-
-				buf.append(ch);
-
-				if (prev == '*' && ch == '/') {
-					currentSTATE = STATE.CODE;
+			if (STATE.BLOCKCOMMENT == states.peek()) {
+				dest.append(c1);
+				if (c1 == '*' && c2 == '/') {
+					states.pop();
 				}
 			}
 
-			else if (STATE.LINECOMMENT == currentSTATE) {
-				if (ch == '\n' || ((ch != '\n') && (prev == '\r'))) {
-					currentSTATE = STATE.CODE;
-					buf.append(this.lineSeparator);
+			else if (STATE.LINECOMMENT == states.peek()) {
+				if (c1 == '\n' || (('\r' == c1) && ('\n' == c2))) {
+					states.pop();
+					dest.append(c1);
 				}
 			}
 
-			else if (STATE.STRING == currentSTATE) {
-				buf.append(ch);
+			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
 
-				if (ch == '\\') {
-					buf.append(text.charAt(i++));
+				dest.append(c1);
+
+				if (!escape && ('\"' == c1)) {
+					states.pop();
 				}
 
-				else if (ch == '\"') {
-					currentSTATE = STATE.CODE;
-				}
-			}
-
-			else if (STATE.CHAR == currentSTATE) {
-				buf.append(ch);
-
-				if (ch == '\\') {
-					buf.append(text.charAt(i++));
-				}
-
-				else if (ch == '\'') {
-					currentSTATE = STATE.CODE;
+				else if ('\\' == c1) {
+					escape = !escape;
 				}
 			}
 
-			else if (ch == '/' && next == '*') {
-				currentSTATE = STATE.BLOCKCOMMENT;
-				buf.append("/*");
-				i++;
+			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
+
+				dest.append(c1);
+
+				if (!escape && c1 == '\'') {
+					states.pop();
+				}
+
+				else if ('\\' == c1) {
+					escape = !escape;
+				}
 			}
 
-			else if (ch == '/' && next == '/') {
-				currentSTATE = STATE.LINECOMMENT;
-			}
+			else if (STATE.CODE == states.peek()) {
 
-			else if (ch == '\"') {
-				currentSTATE = STATE.STRING;
-				buf.append(ch);
-			}
+				assert !escape : "illegal states.";
 
-			else if (ch == '\'') {
-				currentSTATE = STATE.CHAR;
-				buf.append(ch);
-			}
+				if (c1 == '/' && c2 == '*') {
+					states.push(STATE.BLOCKCOMMENT);
+					dest.append(c1);
+					dest.append(c2);
+					index++;
+				}
 
-			else {
-				buf.append(ch);
+				else if (c1 == '/' && c2 == '/') {
+					states.push(STATE.LINECOMMENT);
+					index++;
+				}
+
+				else if (c1 == '\"') {
+					states.push(STATE.DOUBLEQUOTELITERAL);
+					dest.append(c1);
+				}
+
+				else if (c1 == '\'') {
+					states.push(STATE.SINGLEQUOTELITERAL);
+					dest.append(c1);
+				}
+
+				else {
+					dest.append(c1);
+				}
 			}
 		}
 
-		return buf.toString();
+		return dest.toString();
 	}
 
 	@Override
-	public String deleteBlockComment(final String text) {
+	public String deleteBlockComment(final String src) {
 
-		StringBuilder buf = new StringBuilder();
+		final StringBuilder dest = new StringBuilder();
+		final Stack<STATE> states = new Stack<>();
+		states.push(STATE.CODE);
 
-		STATE currentSTATE = STATE.CODE;
-
-		for (int i = 0; i < text.length(); i++) {
-			final char prev = 0 < i ? text.charAt(i - 1) : '0';
-			final char ch = text.charAt(i);
-			final char next = (i < text.length() - 1) ? text.charAt(i + 1)
+		for (int index = 0; index < src.length(); index++) {
+			final char c1 = src.charAt(index);
+			final char c2 = (index + 1) < src.length() ? src.charAt(index + 1)
 					: '0';
 
-			if (STATE.BLOCKCOMMENT == currentSTATE) {
-				if (prev == '*' && ch == '/') {
-					currentSTATE = STATE.CODE;
-					buf.append(" ");
+			if (STATE.BLOCKCOMMENT == states.peek()) {
+				if ('*' == c1 && '/' == c2) {
+					states.pop();
+					index++;
 				}
 
-				else if (ch == '\n' || ((ch != '\n') && (prev == '\r'))) {
-					buf.append(this.lineSeparator);
-				}
-			}
-
-			else if (STATE.LINECOMMENT == currentSTATE) {
-				buf.append(ch);
-
-				if (ch == '\n' || ((ch != '\n') && (prev == '\r'))) {
-					currentSTATE = STATE.CODE;
+				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					dest.append(c1);
 				}
 			}
 
-			else if (STATE.STRING == currentSTATE) {
-				buf.append(ch);
+			else if (STATE.LINECOMMENT == states.peek()) {
 
-				if (ch == '\\') {
-					buf.append(text.charAt(i++));
+				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					states.pop();
+					dest.append(c1);
 				}
 
-				else if (ch == '\"') {
-					currentSTATE = STATE.CODE;
-				}
-			}
-
-			else if (STATE.CHAR == currentSTATE) {
-				buf.append(ch);
-
-				if (ch == '\\') {
-					buf.append(text.charAt(i++));
-				}
-
-				else if (ch == '\'') {
-					currentSTATE = STATE.CODE;
+				else {
+					dest.append(c1);
 				}
 			}
 
-			else if (ch == '/' && next == '*') {
-				currentSTATE = STATE.BLOCKCOMMENT;
-				i++;
+			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
+
+				dest.append(c1);
+
+				if ('\"' == c1) {
+					states.pop();
+				}
+
+				else if (('\\' == c1) && ('\"' == c2)) {
+					dest.append(c2);
+					index++;
+				}
+
+				else if ((('\\') == c1) && ('\\' == c2)) {
+					dest.append(c2);
+					index++;
+				}
 			}
 
-			else if (ch == '\"') {
-				currentSTATE = STATE.STRING;
-				buf.append(ch);
+			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
+
+				dest.append(c1);
+
+				if ('\'' == c1) {
+					states.pop();
+				}
+
+				else if (('\\' == c1) && ('\'' == c2)) {
+					dest.append(c2);
+					index++;
+				}
+
+				else if ((('\\') == c1) && ('\\' == c2)) {
+					dest.append(c2);
+					index++;
+				}
 			}
 
-			else if (ch == '\'') {
-				currentSTATE = STATE.CHAR;
-				buf.append(ch);
-			}
+			else if (STATE.CODE == states.peek()) {
 
-			else {
-				buf.append(ch);
+				if ('/' == c1 && '*' == c2) {
+					states.push(STATE.BLOCKCOMMENT);
+					index++;
+				}
+
+				else if ('\"' == c1) {
+					states.push(STATE.DOUBLEQUOTELITERAL);
+					dest.append(c1);
+				}
+
+				else if ('\'' == c1) {
+					states.push(STATE.SINGLEQUOTELITERAL);
+					dest.append(c1);
+				}
+
+				else {
+					dest.append(c1);
+				}
 			}
 		}
 
-		return buf.toString();
+		return dest.toString();
 	}
 
 	public String deleteBracketLine(final String src) {
 
-		final StringBuilder text = new StringBuilder();
-		for (final StringTokenizer tokenizer = new StringTokenizer(src,
-				this.lineSeparator); tokenizer.hasMoreTokens();) {
+		final StringBuilder dest = new StringBuilder();
+		final StringBuilder line = new StringBuilder();
+		final Stack<STATE> states = new Stack<>();
+		states.push(STATE.CODE);
+		BRACKET_STATE bracketState = BRACKET_STATE.BEFORE_BRACKET;
+		boolean escape = false;
 
-			final String line = tokenizer.nextToken();
-			if (line.matches("[ \t]*[{][ \t]*")) {
-				text.append("{");
-			}
+		for (int index = 0; index <= src.length(); index++) {
+			final char c1 = index < src.length() ? src.charAt(index) : '\n';
+			final char c2 = (index + 1) < src.length() ? src.charAt(index + 1)
+					: '0';
 
-			else if (line.matches("[ \t]*[}][ \t]*")) {
-				text.append("}");
-			}
+			if (BRACKET_STATE.USUAL_LINE == bracketState) {
 
-			else {
-
-				if (0 < text.length()) {
-					text.append(this.lineSeparator);
+				line.append(c1);
+				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					bracketState = BRACKET_STATE.BEFORE_BRACKET;
+					dest.append(line.toString());
+					line.delete(0, line.length());
 				}
-				text.append(line);
+
+			}
+
+			else if (BRACKET_STATE.AFTER_OPEN_BRACKET == bracketState) {
+
+				line.append(c1);
+				if (' ' == c1 || '\t' == c1) {
+					// do nothing
+				}
+
+				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					for (int last = dest.length() - 1; ' ' == dest.charAt(last)
+							|| '\t' == dest.charAt(last)
+							|| '\n' == dest.charAt(last)
+							|| '\r' == dest.charAt(last); last--) {
+						dest.deleteCharAt(last);
+					}
+					dest.deleteCharAt(dest.length() - 1);
+					dest.append("{");
+					dest.append(c1);
+					line.delete(0, line.length());
+					bracketState = BRACKET_STATE.BEFORE_BRACKET;
+				}
+
+				else {
+					bracketState = BRACKET_STATE.USUAL_LINE;
+				}
+			}
+
+			else if (BRACKET_STATE.AFTER_CLOSE_BRACKET == bracketState) {
+
+				line.append(c1);
+				if (' ' == c1 || '\t' == c1) {
+					// do nothing
+				}
+
+				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					for (int last = dest.length() - 1; ' ' == dest.charAt(last)
+							|| '\t' == dest.charAt(last)
+							|| '\n' == dest.charAt(last)
+							|| '\r' == dest.charAt(last); last--) {
+						dest.deleteCharAt(last);
+					}
+					dest.append("}");
+					dest.append(c1);
+					line.delete(0, line.length());
+					bracketState = BRACKET_STATE.BEFORE_BRACKET;
+				}
+
+				else {
+					bracketState = BRACKET_STATE.USUAL_LINE;
+				}
+			}
+
+			else if (BRACKET_STATE.BEFORE_BRACKET == bracketState) {
+
+				line.append(c1);
+				if (' ' == c1 || '\t' == c1) {
+					// do nothing
+				}
+
+				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					bracketState = BRACKET_STATE.BEFORE_BRACKET;
+					dest.append(line.toString());
+					line.delete(0, line.length());
+				}
+
+				else if ('{' == c1) {
+					bracketState = BRACKET_STATE.AFTER_OPEN_BRACKET;
+				}
+
+				else if ('}' == c1) {
+					bracketState = BRACKET_STATE.AFTER_CLOSE_BRACKET;
+				}
+
+				else {
+					bracketState = BRACKET_STATE.USUAL_LINE;
+				}
+			}
+
+			if (STATE.BLOCKCOMMENT == states.peek()) {
+				if ('*' == c1 && '/' == c2) {
+					states.pop();
+				}
+
+				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				}
+			}
+
+			else if (STATE.LINECOMMENT == states.peek()) {
+				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+					states.pop();
+				}
+			}
+
+			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
+
+				if (!escape && ('\"' == c1)) {
+					states.pop();
+				}
+
+				else if ('\\' == c1) {
+					escape = !escape;
+				}
+			}
+
+			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
+
+				if (!escape && ('\\' == c1)) {
+					states.pop();
+				}
+
+				else if ('\\' == c1) {
+					escape = !escape;
+				}
+
+			} else if (STATE.CODE == states.peek()) {
+
+				assert !escape : "illegal state.";
+				if ('/' == c1 && '*' == c2) {
+					states.push(STATE.BLOCKCOMMENT);
+				}
+
+				if ('/' == c1 && '/' == c2) {
+					states.push(STATE.LINECOMMENT);
+				}
+
+				else if ('\"' == c1) {
+					states.push(STATE.DOUBLEQUOTELITERAL);
+				}
+
+				else if ('\'' == c1) {
+					states.push(STATE.SINGLEQUOTELITERAL);
+				}
 			}
 		}
 
-		return text.toString();
+		assert 0 == line.length() : "illegal state.";
+		dest.deleteCharAt(dest.length() - 1);
+		return dest.toString();
 	}
 
-	private String deleteIndent(final String text) {
-		return text.replaceAll(this.lineSeparator + "[ \t]+",
-				this.lineSeparator);
+	private String deleteIndent(final String src) {
+
+		final StringBuilder dest = new StringBuilder();
+		boolean indent = true;
+
+		for (int index = 0; index < src.length(); index++) {
+			final char c1 = src.charAt(index);
+			final char c2 = (index + 1) < src.length() ? src.charAt(index + 1)
+					: '0';
+
+			if (' ' == c1 || ' ' == c1) {
+				if (!indent) {
+					dest.append(c1);
+				}
+			}
+
+			else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				dest.append(c1);
+				indent = true;
+			}
+
+			else {
+				indent = false;
+				dest.append(c1);
+			}
+		}
+
+		return dest.toString();
 	}
 }

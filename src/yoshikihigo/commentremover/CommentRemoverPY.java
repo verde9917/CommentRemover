@@ -12,26 +12,25 @@ public class CommentRemoverPY extends CommentRemover {
 		super(config);
 	}
 
-	public String perform(final String text) {
+	public String perform(final String src) {
 
-		String result = text;
+		String dest = src;
 		if (!this.config.hasLINECOMMENT()) {
-			result = deleteLineComment(result);
+			dest = deleteLineComment(dest);
 		}
 		if (!this.config.hasBLOCKCOMMENT()) {
-			result = deleteBlockComment(result);
+			dest = deleteBlockComment(dest);
 		}
 		if (!this.config.hasBLANKLINE()) {
-			result = deleteBlankLine(result);
+			dest = deleteBlankLine(dest);
 		}
-		return result;
+		return dest;
 	}
 
 	@Override
 	public String deleteLineComment(final String src) {
 
-		StringBuilder buf = new StringBuilder();
-
+		final StringBuilder dest = new StringBuilder();
 		final Stack<STATE> states = new Stack<>();
 		states.push(STATE.CODE);
 
@@ -45,23 +44,23 @@ public class CommentRemoverPY extends CommentRemover {
 
 			if (STATE.DOUBLEQUOTEBLOCKCOMMENT == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\"' == c1 && '\"' == c2 && '\"' == c3) {
 					states.pop();
-					buf.append(c2);
-					buf.append(c3);
+					dest.append(c2);
+					dest.append(c3);
 					index += 2;
 				}
 
 			} else if (STATE.SINGLEQUOTEBLOCKCOMMENT == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\'' == c1 && '\'' == c2 && '\'' == c3) {
 					states.pop();
-					buf.append(c2);
-					buf.append(c3);
+					dest.append(c2);
+					dest.append(c3);
 					index += 2;
 				}
 
@@ -69,44 +68,44 @@ public class CommentRemoverPY extends CommentRemover {
 
 				if (('\n' == c1) || ((c1 == '\r') && ('\n' != c2))) {
 					states.pop();
-					buf.append(this.lineSeparator);
+					dest.append(c1);
 				}
 			}
 
 			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\"' == c1) {
 					states.pop();
 				}
 
 				else if (('\\' == c1) && ('\"' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 
 				else if ((('\\') == c1) && ('\\' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 			}
 
 			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\'' == c1) {
 					states.pop();
 				}
 
 				else if (('\\' == c1) && ('\'' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 
 				else if ((('\\') == c1) && ('\\' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 			}
@@ -115,17 +114,17 @@ public class CommentRemoverPY extends CommentRemover {
 
 				if ('\"' == c1 && '\"' == c2 && '\"' == c3) {
 					states.push(STATE.DOUBLEQUOTEBLOCKCOMMENT);
-					buf.append(c1);
-					buf.append(c2);
-					buf.append(c3);
+					dest.append(c1);
+					dest.append(c2);
+					dest.append(c3);
 					index += 2;
 				}
 
 				else if ('\'' == c1 && '\'' == c2 && '\'' == c3) {
 					states.push(STATE.SINGLEQUOTEBLOCKCOMMENT);
-					buf.append(c1);
-					buf.append(c2);
-					buf.append(c3);
+					dest.append(c1);
+					dest.append(c2);
+					dest.append(c3);
 					index += 2;
 				}
 
@@ -135,33 +134,31 @@ public class CommentRemoverPY extends CommentRemover {
 
 				else if ('\"' == c1) {
 					states.push(STATE.DOUBLEQUOTELITERAL);
-					buf.append(c1);
+					dest.append(c1);
 				}
 
 				else if ('\'' == c1) {
 					states.push(STATE.SINGLEQUOTELITERAL);
-					buf.append(c1);
+					dest.append(c1);
 				}
 
 				else {
-					buf.append(c1);
+					dest.append(c1);
 				}
 			}
 		}
 
-		return buf.toString();
+		return dest.toString();
 	}
 
 	@Override
 	public String deleteBlockComment(final String src) {
 
-		StringBuilder buf = new StringBuilder();
-
+		final StringBuilder dest = new StringBuilder();
 		final Stack<STATE> states = new Stack<>();
 		states.push(STATE.CODE);
 
-		int index = 0;
-		for (; index < src.length(); index++) {
+		for (int index = 0; index < src.length(); index++) {
 			final char c1 = src.charAt(index);
 			final char c2 = ((index + 1) < src.length()) ? src
 					.charAt(index + 1) : ' ';
@@ -181,7 +178,7 @@ public class CommentRemoverPY extends CommentRemover {
 				}
 
 				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
-					buf.append(this.lineSeparator);
+					dest.append(c1);
 				}
 			}
 
@@ -198,44 +195,44 @@ public class CommentRemoverPY extends CommentRemover {
 				}
 
 				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
-					buf.append(this.lineSeparator);
+					dest.append(c1);
 				}
 			}
 
 			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\'' == c1) {
 					states.pop();
 				}
 
 				else if (('\\' == c1) && ('\'' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 
 				else if ((('\\') == c1) && ('\\' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 			}
 
 			else if (STATE.DOUBLEQUOTELITERAL == states.peek()) {
 
-				buf.append(c1);
+				dest.append(c1);
 
 				if ('\"' == c1) {
 					states.pop();
 				}
 
 				else if (('\\' == c1) && ('\"' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 
 				else if ((('\\') == c1) && ('\\' == c2)) {
-					buf.append(c2);
+					dest.append(c2);
 					index++;
 				}
 			}
@@ -253,21 +250,21 @@ public class CommentRemoverPY extends CommentRemover {
 				}
 
 				else if ('\'' == c1) {
-					buf.append(c1);
+					dest.append(c1);
 					states.push(STATE.SINGLEQUOTELITERAL);
 				}
 
 				else if ('\"' == c1) {
-					buf.append(c1);
+					dest.append(c1);
 					states.push(STATE.DOUBLEQUOTELITERAL);
 				}
 
 				else {
-					buf.append(c1);
+					dest.append(c1);
 				}
 			}
 		}
 
-		return buf.toString();
+		return dest.toString();
 	}
 }

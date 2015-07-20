@@ -107,11 +107,7 @@ abstract public class CommentRemover {
 			final char c2 = (index + 1) < text.length() ? text
 					.charAt(index + 1) : '0';
 
-			if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
-				line.append(c1);
-			}
-
-			else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+			if (('\n' == c1) || (('\r' == c1) && ('\n' != c2))) {
 				if (!blankline) {
 					line.append(c1);
 					result.append(line.toString());
@@ -120,6 +116,10 @@ abstract public class CommentRemover {
 					line.delete(0, line.length());
 				}
 				blankline = true;
+			}
+
+			else if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
+				line.append(c1);
 			}
 
 			else {

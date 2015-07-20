@@ -267,11 +267,8 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.AFTER_OPEN_BRACKET == bracketState) {
 
 				line.append(c1);
-				if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
-					// do nothing
-				}
 
-				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				if (('\n' == c1) || (('\r' == c1) && ('\n' != c2))) {
 					for (int last = dest.length() - 1; ' ' == dest.charAt(last)
 							|| '\t' == dest.charAt(last)
 							|| '\n' == dest.charAt(last)
@@ -284,6 +281,10 @@ public class CommentRemoverJC extends CommentRemover {
 					bracketState = BRACKET_STATE.BEFORE_BRACKET;
 				}
 
+				else if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
+					// do nothing
+				}
+
 				else {
 					bracketState = BRACKET_STATE.USUAL_LINE;
 				}
@@ -292,11 +293,8 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.AFTER_CLOSE_BRACKET == bracketState) {
 
 				line.append(c1);
-				if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
-					// do nothing
-				}
 
-				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
 					for (int last = dest.length() - 1; ' ' == dest.charAt(last)
 							|| '\t' == dest.charAt(last)
 							|| '\n' == dest.charAt(last)
@@ -309,6 +307,10 @@ public class CommentRemoverJC extends CommentRemover {
 					bracketState = BRACKET_STATE.BEFORE_BRACKET;
 				}
 
+				else if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
+					// do nothing
+				}
+
 				else {
 					bracketState = BRACKET_STATE.USUAL_LINE;
 				}
@@ -317,14 +319,15 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.BEFORE_BRACKET == bracketState) {
 
 				line.append(c1);
-				if ((' ' == c1) || ('\t' == c1)) {
-					// do nothing
-				}
 
-				else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
+				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
 					bracketState = BRACKET_STATE.BEFORE_BRACKET;
 					dest.append(line.toString());
 					line.delete(0, line.length());
+				}
+
+				else if ((' ' == c1) || ('\t' == c1)) {
+					// do nothing
 				}
 
 				else if ('{' == c1) {
@@ -350,6 +353,7 @@ public class CommentRemoverJC extends CommentRemover {
 			}
 
 			else if (STATE.LINECOMMENT == states.peek()) {
+				
 				if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
 					states.pop();
 				}

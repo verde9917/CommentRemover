@@ -52,14 +52,19 @@ public class CommentRemoverJC extends CommentRemover {
 					: '0';
 
 			if (STATE.BLOCKCOMMENT == states.peek()) {
+
 				dest.append(c1);
-				if (c1 == '*' && c2 == '/') {
+
+				if ((c1 == '*') && (c2 == '/')) {
+					dest.append(c2);
 					states.pop();
+					index++;
 				}
 			}
 
 			else if (STATE.LINECOMMENT == states.peek()) {
-				if (c1 == '\n' || (('\r' == c1) && ('\n' == c2))) {
+
+				if ((c1 == '\n') || (('\r' == c1) && ('\n' == c2))) {
 					states.pop();
 					dest.append(c1);
 				}
@@ -76,18 +81,26 @@ public class CommentRemoverJC extends CommentRemover {
 				else if ('\\' == c1) {
 					escape = !escape;
 				}
+
+				else {
+					escape = false;
+				}
 			}
 
 			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
 
 				dest.append(c1);
 
-				if (!escape && c1 == '\'') {
+				if (!escape && (c1 == '\'')) {
 					states.pop();
 				}
 
 				else if ('\\' == c1) {
 					escape = !escape;
+				}
+
+				else {
+					escape = false;
 				}
 			}
 
@@ -95,14 +108,14 @@ public class CommentRemoverJC extends CommentRemover {
 
 				assert !escape : "illegal states.";
 
-				if (c1 == '/' && c2 == '*') {
+				if ((c1 == '/') && (c2 == '*')) {
 					states.push(STATE.BLOCKCOMMENT);
 					dest.append(c1);
 					dest.append(c2);
 					index++;
 				}
 
-				else if (c1 == '/' && c2 == '/') {
+				else if ((c1 == '/') && (c2 == '/')) {
 					states.push(STATE.LINECOMMENT);
 					index++;
 				}

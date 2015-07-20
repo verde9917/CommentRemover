@@ -107,7 +107,7 @@ abstract public class CommentRemover {
 			final char c2 = (index + 1) < text.length() ? text
 					.charAt(index + 1) : '0';
 
-			if (' ' == c1 || '\t' == c1) {
+			if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
 				line.append(c1);
 			}
 

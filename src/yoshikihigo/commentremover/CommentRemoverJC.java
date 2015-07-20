@@ -26,15 +26,16 @@ public class CommentRemoverJC extends CommentRemover {
 		if (CRConfig.OPERATION.REMOVE == this.config.getBLOCKCOMMENT()) {
 			dest = deleteBlockComment(dest);
 		}
-		if (CRConfig.OPERATION.REMOVE == this.config.getBLANKLINE()) {
-			dest = deleteBlankLine(dest);
+		if (CRConfig.OPERATION.REMOVE == this.config.getINDENT()) {
+			dest = deleteIndent(dest);
 		}
 		if (CRConfig.OPERATION.REMOVE == this.config.getBRACKETLINE()) {
 			dest = deleteBracketLine(dest);
 		}
-		if (CRConfig.OPERATION.REMOVE == this.config.getINDENT()) {
-			dest = deleteIndent(dest);
+		if (CRConfig.OPERATION.REMOVE == this.config.getBLANKLINE()) {
+			dest = deleteBlankLine(dest);
 		}
+
 		return dest;
 	}
 
@@ -266,7 +267,7 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.AFTER_OPEN_BRACKET == bracketState) {
 
 				line.append(c1);
-				if (' ' == c1 || '\t' == c1) {
+				if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
 					// do nothing
 				}
 
@@ -277,7 +278,6 @@ public class CommentRemoverJC extends CommentRemover {
 							|| '\r' == dest.charAt(last); last--) {
 						dest.deleteCharAt(last);
 					}
-					dest.deleteCharAt(dest.length() - 1);
 					dest.append("{");
 					dest.append(c1);
 					line.delete(0, line.length());
@@ -292,7 +292,7 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.AFTER_CLOSE_BRACKET == bracketState) {
 
 				line.append(c1);
-				if (' ' == c1 || '\t' == c1) {
+				if ((' ' == c1) || ('\t' == c1) || ('\r' == c1)) {
 					// do nothing
 				}
 
@@ -317,7 +317,7 @@ public class CommentRemoverJC extends CommentRemover {
 			else if (BRACKET_STATE.BEFORE_BRACKET == bracketState) {
 
 				line.append(c1);
-				if (' ' == c1 || '\t' == c1) {
+				if ((' ' == c1) || ('\t' == c1)) {
 					// do nothing
 				}
 
@@ -364,11 +364,15 @@ public class CommentRemoverJC extends CommentRemover {
 				else if ('\\' == c1) {
 					escape = !escape;
 				}
+
+				else {
+					escape = false;
+				}
 			}
 
 			else if (STATE.SINGLEQUOTELITERAL == states.peek()) {
 
-				if (!escape && ('\\' == c1)) {
+				if (!escape && ('\'' == c1)) {
 					states.pop();
 				}
 
@@ -376,14 +380,18 @@ public class CommentRemoverJC extends CommentRemover {
 					escape = !escape;
 				}
 
+				else {
+					escape = false;
+				}
+
 			} else if (STATE.CODE == states.peek()) {
 
 				assert !escape : "illegal state.";
-				if ('/' == c1 && '*' == c2) {
+				if (('/' == c1) && ('*' == c2)) {
 					states.push(STATE.BLOCKCOMMENT);
 				}
 
-				if ('/' == c1 && '/' == c2) {
+				if (('/' == c1) && ('/' == c2)) {
 					states.push(STATE.LINECOMMENT);
 				}
 

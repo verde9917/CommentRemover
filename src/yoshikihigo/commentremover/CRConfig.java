@@ -186,6 +186,8 @@ public class CRConfig {
 			return LANGUAGE.CPP;
 		} else if (language.equalsIgnoreCase("JAVA")) {
 			return LANGUAGE.JAVA;
+		} else if (language.equalsIgnoreCase("JAVASCRIPT")) {
+			return LANGUAGE.JAVASCRIPT;
 		} else if (language.equalsIgnoreCase("PYTHON")) {
 			return LANGUAGE.PYTHON;
 		} else {

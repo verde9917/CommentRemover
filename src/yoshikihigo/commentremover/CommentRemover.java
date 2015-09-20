@@ -33,6 +33,8 @@ abstract public class CommentRemover {
 				remover = new CommentRemoverJC(config);
 			} else if (LANGUAGE.JAVA.isTargetFile(input)) {
 				remover = new CommentRemoverJC(config);
+			} else if (LANGUAGE.JAVASCRIPT.isTargetFile(input)) {
+				remover = new CommentRemoverJS(config);
 			} else if (LANGUAGE.PYTHON.isTargetFile(input)) {
 				remover = new CommentRemoverPY(config);
 			}

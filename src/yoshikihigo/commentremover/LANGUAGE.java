@@ -35,6 +35,14 @@ public enum LANGUAGE {
 		}
 	},
 
+	PHP {
+
+		@Override
+		public boolean isTargetFile(final String path) {
+			return path.endsWith("php");
+		}
+	},
+
 	PYTHON {
 
 		@Override
@@ -49,7 +57,7 @@ public enum LANGUAGE {
 		public boolean isTargetFile(final String path) {
 			return C.isTargetFile(path) || CPP.isTargetFile(path)
 					|| JAVA.isTargetFile(path) || JAVASCRIPT.isTargetFile(path)
-					|| PYTHON.isTargetFile(path);
+					|| PHP.isTargetFile(path) || PYTHON.isTargetFile(path);
 		}
 	};
 

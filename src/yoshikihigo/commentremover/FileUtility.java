@@ -46,6 +46,7 @@ public class FileUtility {
 			for (int i = 0; i < text.length(); i++) {
 				out.write(text.charAt(i));
 			}
+			out.flush();
 
 		} catch (final IOException e) {
 			e.printStackTrace();

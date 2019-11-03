@@ -1,4 +1,5 @@
 CommentRemover
+[![](https://jitpack.io/v/YoshikiHigo/CommentRemover.svg)](https://jitpack.io/#YoshikiHigo/CommentRemover)
 ==============
 
 A simple to remove code comment, blank lines, and bracket lines, and indent.

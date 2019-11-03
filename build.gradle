@@ -21,6 +21,9 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+
+    // jitpack
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -32,6 +35,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+
+    // jitpack
+    implementation 'com.github.YoshikiHigo:CommentRemover:Tag'
 }
 
 application {

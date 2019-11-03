@@ -2,64 +2,63 @@ package yoshikihigo.commentremover;
 
 public enum LANGUAGE {
 
-	C {
+  C {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith(".c") || path.endsWith(".h");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith(".c") || path.endsWith(".h");
+    }
+  },
 
-	CPP {
+  CPP {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith(".cpp") || path.endsWith(".cxx")
-					|| path.endsWith(".hpp") || path.endsWith(".hxx");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith(".cpp") || path.endsWith(".cxx") || path.endsWith(".hpp")
+          || path.endsWith(".hxx");
+    }
+  },
 
-	JAVA {
+  JAVA {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith(".java");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith(".java");
+    }
+  },
 
-	JAVASCRIPT {
+  JAVASCRIPT {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith(".js");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith(".js");
+    }
+  },
 
-	PHP {
+  PHP {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith("php");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith("php");
+    }
+  },
 
-	PYTHON {
+  PYTHON {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return path.endsWith("py");
-		}
-	},
+    @Override
+    public boolean isTargetFile(final String path) {
+      return path.endsWith("py");
+    }
+  },
 
-	ALL {
+  ALL {
 
-		@Override
-		public boolean isTargetFile(final String path) {
-			return C.isTargetFile(path) || CPP.isTargetFile(path)
-					|| JAVA.isTargetFile(path) || JAVASCRIPT.isTargetFile(path)
-					|| PHP.isTargetFile(path) || PYTHON.isTargetFile(path);
-		}
-	};
+    @Override
+    public boolean isTargetFile(final String path) {
+      return C.isTargetFile(path) || CPP.isTargetFile(path) || JAVA.isTargetFile(path)
+          || JAVASCRIPT.isTargetFile(path) || PHP.isTargetFile(path) || PYTHON.isTargetFile(path);
+    }
+  };
 
-	abstract public boolean isTargetFile(final String path);
+  abstract public boolean isTargetFile(final String path);
 }

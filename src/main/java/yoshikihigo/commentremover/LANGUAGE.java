@@ -1,11 +1,13 @@
 package yoshikihigo.commentremover;
 
+import java.nio.file.Path;
+
 public enum LANGUAGE {
 
   C {
 
     @Override
-    public boolean isTargetFile(final String path) {
+    public boolean isTargetFile(final Path path) {
       return path.endsWith(".c") || path.endsWith(".h");
     }
   },
@@ -13,7 +15,7 @@ public enum LANGUAGE {
   CPP {
 
     @Override
-    public boolean isTargetFile(final String path) {
+    public boolean isTargetFile(final Path path) {
       return path.endsWith(".cpp") || path.endsWith(".cxx") || path.endsWith(".hpp")
           || path.endsWith(".hxx");
     }
@@ -22,7 +24,7 @@ public enum LANGUAGE {
   JAVA {
 
     @Override
-    public boolean isTargetFile(final String path) {
+    public boolean isTargetFile(final Path path) {
       return path.endsWith(".java");
     }
   },
@@ -30,7 +32,7 @@ public enum LANGUAGE {
   JAVASCRIPT {
 
     @Override
-    public boolean isTargetFile(final String path) {
+    public boolean isTargetFile(final Path path) {
       return path.endsWith(".js");
     }
   },
@@ -38,27 +40,27 @@ public enum LANGUAGE {
   PHP {
 
     @Override
-    public boolean isTargetFile(final String path) {
-      return path.endsWith("php");
+    public boolean isTargetFile(final Path path) {
+      return path.endsWith(".php");
     }
   },
 
   PYTHON {
 
     @Override
-    public boolean isTargetFile(final String path) {
-      return path.endsWith("py");
+    public boolean isTargetFile(final Path path) {
+      return path.endsWith(".py");
     }
   },
 
   ALL {
 
     @Override
-    public boolean isTargetFile(final String path) {
+    public boolean isTargetFile(final Path path) {
       return C.isTargetFile(path) || CPP.isTargetFile(path) || JAVA.isTargetFile(path)
           || JAVASCRIPT.isTargetFile(path) || PHP.isTargetFile(path) || PYTHON.isTargetFile(path);
     }
   };
 
-  abstract public boolean isTargetFile(final String path);
+  abstract public boolean isTargetFile(final Path path);
 }

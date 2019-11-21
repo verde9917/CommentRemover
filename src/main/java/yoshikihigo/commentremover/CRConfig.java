@@ -2,10 +2,10 @@ package yoshikihigo.commentremover;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 public class CRConfig {
 
@@ -13,7 +13,7 @@ public class CRConfig {
 
     REMOVE("remove"), RETAIN("retain");
 
-    final private String value;
+    final public String value;
 
     private OPERATION(final String value) {
       this.value = value;
@@ -123,7 +123,7 @@ public class CRConfig {
     }
 
     try {
-      final CommandLineParser parser = new PosixParser();
+      final CommandLineParser parser = new DefaultParser();
       final CommandLine commandLine = parser.parse(options, args);
       final CRConfig config = new CRConfig(commandLine);
       return config;

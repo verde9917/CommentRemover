@@ -1,5 +1,6 @@
 package yoshikihigo.commentremover;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public enum LANGUAGE {
@@ -8,7 +9,11 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".c") || path.endsWith(".h");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".c") || pathString.endsWith(".h");
     }
   },
 
@@ -16,8 +21,12 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".cpp") || path.endsWith(".cxx") || path.endsWith(".hpp")
-          || path.endsWith(".hxx");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".cpp") || pathString.endsWith(".cxx")
+          || pathString.endsWith(".hpp") || pathString.endsWith(".hxx");
     }
   },
 
@@ -25,7 +34,11 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".java");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".java");
     }
   },
 
@@ -33,7 +46,11 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".js");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".js");
     }
   },
 
@@ -41,7 +58,11 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".php");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".php");
     }
   },
 
@@ -49,7 +70,11 @@ public enum LANGUAGE {
 
     @Override
     public boolean isTargetFile(final Path path) {
-      return path.endsWith(".py");
+      if (!Files.isRegularFile(path)) {
+        return false;
+      }
+      final String pathString = path.toString();
+      return pathString.endsWith(".py");
     }
   },
 

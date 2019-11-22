@@ -22,7 +22,7 @@ abstract public class CommentRemover {
       System.exit(0);
     }
     final Path outputPath = Paths.get(config.getOUTPUT());
-
+    
     if (Files.isRegularFile(inputPath) && Files.isReadable(inputPath)) {
 
       CommentRemover remover = null;

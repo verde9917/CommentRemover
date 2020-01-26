@@ -35,7 +35,6 @@ public class CommentRemoverJC extends CommentRemover {
     if (CRConfig.OPERATION.REMOVE == this.config.getBLANKLINE()) {
       dest = deleteBlankLine(dest);
     }
-
     return dest;
   }
 
@@ -50,9 +49,7 @@ public class CommentRemoverJC extends CommentRemover {
     for (int index = 0; index < src.length(); index++) {
       final char c1 = src.charAt(index);
       final char c2 = (index + 1) < src.length() ? src.charAt(index + 1) : '0';
-
       if (STATE.BLOCKCOMMENT == states.peek()) {
-
         dest.append(c1);
 
         if ((c1 == '*') && (c2 == '/')) {
@@ -107,8 +104,8 @@ public class CommentRemoverJC extends CommentRemover {
       else if (STATE.CODE == states.peek()) {
 
         assert !escape : "illegal states.";
-
         if ((c1 == '/') && (c2 == '*')) {
+
           states.push(STATE.BLOCKCOMMENT);
           dest.append(c1);
           dest.append(c2);
@@ -157,7 +154,8 @@ public class CommentRemoverJC extends CommentRemover {
         }
 
         else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {
-          dest.append(c1);
+//          dest.append(c1);
+//          index++;
         }
       }
 

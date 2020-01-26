@@ -45,10 +45,12 @@ public class CommentRemoverJC extends CommentRemover {
     final Stack<STATE> states = new Stack<>();
     states.push(STATE.CODE);
     boolean escape = false;
+    int comlength = 0;
 
     for (int index = 0; index < src.length(); index++) {
       final char c1 = src.charAt(index);
       final char c2 = (index + 1) < src.length() ? src.charAt(index + 1) : '0';
+
       if (STATE.BLOCKCOMMENT == states.peek()) {
         dest.append(c1);
 
@@ -60,10 +62,35 @@ public class CommentRemoverJC extends CommentRemover {
       }
 
       else if (STATE.LINECOMMENT == states.peek()) {
-
+        comlength+=1;
         if ((c1 == '\n') || (('\r' == c1) && ('\n' == c2))) {
+          boolean hasOtherState = false;
+          int commentHeadIndex = index - comlength +1;
+          int lineHeadIndex = 0;
+          int count=30;
+
+          for(int i=count;i>=0;i--) {
+            char c = src.charAt(index - comlength - i);
+            if (c == '\n') {
+              hasOtherState = false;
+              lineHeadIndex = index - comlength - i+1;
+            } else if(!Character.isWhitespace(c)){
+              hasOtherState = true;
+            }
+          }
+          if(lineHeadIndex == 0 || (lineHeadIndex != 0 && hasOtherState)){
+//            System.out.println("afters other sentence");
+            dest.append("\n");
+          } else if(lineHeadIndex == commentHeadIndex){
+//            System.out.println("start with comment");
+          } else if(lineHeadIndex != 0 && !hasOtherState){
+//            System.out.println("start with comment and tabbeds");
+            if (dest.length() >= (commentHeadIndex - lineHeadIndex)) {
+              dest.setLength(dest.length() - (commentHeadIndex - lineHeadIndex));
+            }
+          }
+
           states.pop();
-          dest.append(c1);
         }
       }
 
@@ -114,6 +141,7 @@ public class CommentRemoverJC extends CommentRemover {
 
         else if ((c1 == '/') && (c2 == '/')) {
           states.push(STATE.LINECOMMENT);
+          comlength = 2;
           index++;
         }
 
@@ -151,6 +179,12 @@ public class CommentRemoverJC extends CommentRemover {
         if ('*' == c1 && '/' == c2) {
           states.pop();
           index++;
+          final char c3 = (index + 1) < src.length() ? src.charAt(index + 1) : '0';
+          final char c4 = (index + 2) < src.length() ? src.charAt(index + 2) : '0';
+          if('\n' == c3 && '\n' == c4){
+            index+=1;
+          }
+
         }
 
         else if ('\n' == c1 || (('\r' == c1) && ('\n' != c2))) {

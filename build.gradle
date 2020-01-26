@@ -18,12 +18,12 @@ plugins {
 group = 'com.github.YoshikiHigo' 
 
 // Set compiler version
-sourceCompatibility = '1.11'
-targetCompatibility = '1.11'
+//sourceCompatibility = '1.8'
+//targetCompatibility = '1.8'
 
 // Set default encoding
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
+//compileJava.options.encoding = 'UTF-8'
+//compileTestJava.options.encoding = 'UTF-8'
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -31,7 +31,7 @@ repositories {
     jcenter()
 
     // jitpack
-    maven { url 'https://jitpack.io' }
+    //maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -48,4 +48,14 @@ dependencies {
 application {
     // Define the main class for the application
     mainClassName = 'yoshikihigo.commentremover.CommentRemover'
+}
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'yoshikihigo.commentremover.CommentRemover'
+    }
+    from { (configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) } } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
 }

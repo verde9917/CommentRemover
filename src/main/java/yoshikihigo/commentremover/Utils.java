@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public class Utils {
   public static String readFile(final Path path, final String encoding) {
     final Charset charset = null == encoding ? StandardCharsets.UTF_8 : Charset.forName(encoding);
     try {
-      return Files.readString(path, charset);
+      return new String(Files.readAllBytes(path), charset);
     } catch (final IOException e) {
       e.printStackTrace();
       return "";
@@ -31,7 +32,11 @@ public class Utils {
       if (!Files.exists(parentDir)) {
         Files.createDirectories(parentDir);
       }
-      Files.writeString(path, text);
+    System.out.println(text);
+      List <String> texts = new ArrayList<>();
+      texts.add(text);
+      Files.write(path, texts);
+      //      Files.writeString(path, text);
     } catch (final IOException e) {
       e.printStackTrace();
     }

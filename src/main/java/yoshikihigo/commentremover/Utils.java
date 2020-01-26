@@ -32,7 +32,6 @@ public class Utils {
       if (!Files.exists(parentDir)) {
         Files.createDirectories(parentDir);
       }
-    System.out.println(text);
       List <String> texts = new ArrayList<>();
       texts.add(text);
       Files.write(path, texts);
